@@ -38,7 +38,7 @@ class Deduplicate:
             print('  Keys With Duplicates: ' + str(dupe_key_count))
             print('  Duplicate Count:      ' + str(dupe_count) + '\n')
 
-    def dedupe_file(self, input_file_path, log_keys=False):
+    def dedupe_file(self, input_file_path, key_index=None, delimiter='|', log_keys=False, debug=False):
 
         output_file_path = input_file_path + ".deduped"
 
@@ -51,13 +51,29 @@ class Deduplicate:
         line = input_file.readline()
         while line:
 
-            line = line.strip()
-            count = seen.get(line)
-            if count == None:
-                output_file.write(line + "\n")
-                seen[line] = 1
+            if key_index:
+                key_index_type = type(key_index)
+                if key_index_type is int:
+                    key = line.strip().split(delimiter)[key_index]
+                elif key_index_type is list:
+                    key = ''
+                    line_arr = line.split(delimiter)
+                    for i in key_index:
+                        key += line_arr[i]
+                else:
+                    print('ERROR: Invalid key index type: ' + str(key_index_type))
             else:
-                seen[line] = count + 1
+                key = line.strip()
+
+            if debug:
+                print(key)
+
+            count = seen.get(key)
+            if count == None:
+                output_file.write(key + "\n")
+                seen[key] = 1
+            else:
+                seen[key] = count + 1
                 dupe_count += 1
 
             line = input_file.readline()

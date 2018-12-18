@@ -34,4 +34,4 @@ if batch_mode:
     dd.dedupe_batch(input_dir)
 else:
     input_file_path = options.get('input_file_path')
-    dd.dedupe_file(input_file_path)
+    dd.dedupe_file(input_file_path, key_index=[0, 1, 2], log_keys=True)

@@ -3,9 +3,10 @@ import sys
 
 class Deduplicate:
 
-    def __init__(self, report_file_path='report.txt'):
+    def __init__(self, report_file_path='report.txt', print_to_console=False):
 
         self.report_file = open(report_file_path, "w")
+        self.print_to_console = print_to_console
 
     # Generates a report that details the total amount of duplicate records NOT
     # including the original record.  For example, if Key-A is in the file 3 times,
@@ -13,6 +14,8 @@ class Deduplicate:
     def generate_report(self, seen, input_file_path, log_keys=False):
 
         self.report_file.write(input_file_path + '\n')
+        if self.print_to_console:
+            print(input_file_path)
 
         dupe_count = 0
         # Number of keys with one or more duplicate
@@ -31,6 +34,9 @@ class Deduplicate:
 
         self.report_file.write('  Keys With Duplicates: ' + str(dupe_key_count) + '\n')
         self.report_file.write('  Duplicate Count:      ' + str(dupe_count) + '\n\n')
+        if self.print_to_console:
+            print('  Keys With Duplicates: ' + str(dupe_key_count))
+            print('  Duplicate Count:      ' + str(dupe_count) + '\n')
 
     def dedupe_file(self, input_file_path, log_keys=False):
 

@@ -9,6 +9,8 @@ def parse_options(options_arr):
     if options_arr[1][0] != '-':
         options['batch_mode'] = False
         options['input_file_path'] = options_arr[1]
+        if '--check' in options_arr or '-c' in options_arr:
+            options['check_mode'] = True
     else:
         i = 1
         while i < len(options_arr):
@@ -27,11 +29,15 @@ if (len(sys.argv) < 2):
 
 options = parse_options(sys.argv)
 batch_mode = options.get('batch_mode')
+check_mode = options.get('check_mode')
 dd = Deduplicate()
 
-if batch_mode:
+if check_mode:
+    input_file_path = options.get('input_file_path')
+    dd.check_file(input_file_path, key_index=[0, 1, 2])
+elif batch_mode:
     input_dir = options.get('input_dir')
     dd.dedupe_batch(input_dir)
 else:
     input_file_path = options.get('input_file_path')
-    dd.dedupe_file(input_file_path, key_index=[0, 1, 2], log_keys=True)
+    dd.dedupe_file(input_file_path, key_index=[0, 1, 2])

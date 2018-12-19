@@ -40,7 +40,8 @@ class Deduplicate:
 
     def dedupe_file(self, input_file_path, key_index=None, delimiter='|', log_keys=False, debug=False):
 
-        output_file_path = input_file_path + ".deduped"
+        input_file_path_arr = input_file_path.split('.')
+        output_file_path = input_file_path_arr[0] + '_deduped.' + input_file_path_arr[1]
 
         input_file = open(input_file_path, "r")
         output_file = open(output_file_path, "w")
@@ -51,10 +52,11 @@ class Deduplicate:
         line = input_file.readline()
         while line:
 
+            line = line.strip()
             if key_index:
                 key_index_type = type(key_index)
                 if key_index_type is int:
-                    key = line.strip().split(delimiter)[key_index]
+                    key = line.split(delimiter)[key_index]
                 elif key_index_type is list:
                     key = ''
                     line_arr = line.split(delimiter)
@@ -63,14 +65,14 @@ class Deduplicate:
                 else:
                     print('ERROR: Invalid key index type: ' + str(key_index_type))
             else:
-                key = line.strip()
+                key = line
 
             if debug:
                 print(key)
 
             count = seen.get(key)
             if count == None:
-                output_file.write(key + "\n")
+                output_file.write(line + '\n')
                 seen[key] = 1
             else:
                 seen[key] = count + 1
@@ -92,6 +94,43 @@ class Deduplicate:
         for file in input_files:
 
             self.dedupe_file(file, log_keys)
+
+    def check_file(self, input_file_path, key_index=None, delimiter='|'):
+
+        input_file = open(input_file_path, "r")
+
+        seen = {}
+        row_count = 1
+
+        line = input_file.readline()
+        while line:
+
+            if key_index:
+                key_index_type = type(key_index)
+                if key_index_type is int:
+                    key = line.strip().split(delimiter)[key_index]
+                elif key_index_type is list:
+                    key = ''
+                    line_arr = line.split(delimiter)
+                    for i in key_index:
+                        key += line_arr[i]
+                else:
+                    print('ERROR: Invalid key index type: ' + str(key_index_type))
+            else:
+                key = line.strip()
+
+            key_exists = seen.get(key)
+            if key_exists:
+                print('Duplicate at row ' + str(row_count))
+                sys.exit(2)
+            else:
+                seen[key] = True
+
+            row_count += 1
+            line = input_file.readline()
+
+        print('No duplicates found')
+        input_file.close()
 
     def __del__(self):
 
